@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Sorting Exercise</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #cards, #categories {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .card, .category {
+            padding: 10px;
+            border: 1px solid #333;
+            background-color: #f8f9fa;
+            min-width: 100px;
+            text-align: center;
+        }
+        .card {
+            cursor: grab;
+            background-color: #e2e2e2;
+        }
+        .category {
+            min-height: 100px;
+            width: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .category h3 {
+            margin-top: 0;
+        }
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            padding: 2px 5px;
+        }
+        .add-category {
+            margin-top: 20px;
+        }
+        .screenshot-btn {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+    <!-- Include html2canvas library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <h1>Card Sorting Exercise</h1>
+    <p>Drag and drop each card into categories. You can create new categories or use "I Don't Know" if unsure.</p>
+
+    <!-- Cards Section -->
+    <div id="cards">
+        <!-- 15 draggable cards -->
+        <div class="card" draggable="true" id="card1">Card 1</div>
+        <div class="card" draggable="true" id="card2">Card 2</div>
+        <div class="card" draggable="true" id="card3">Card 3</div>
+        <div class="card" draggable="true" id="card4">Card 4</div>
+        <div class="card" draggable="true" id="card5">Card 5</div>
+        <div class="card" draggable="true" id="card6">Card 6</div>
+        <div class="card" draggable="true" id="card7">Card 7</div>
+        <div class="card" draggable="true" id="card8">Card 8</div>
+        <div class="card" draggable="true" id="card9">Card 9</div>
+        <div class="card" draggable="true" id="card10">Card 10</div>
+        <div class="card" draggable="true" id="card11">Card 11</div>
+        <div class="card" draggable="true" id="card12">Card 12</div>
+        <div class="card" draggable="true" id="card13">Card 13</div>
+        <div class="card" draggable="true" id="card14">Card 14</div>
+        <div class="card" draggable="true" id="card15">Card 15</div>
+    </div>
+
+    <!-- Categories Section -->
+    <h2>Categories</h2>
+    <div id="categories">
+        <!-- Default "I Don't Know" category -->
+        <div class="category" id="unknown-category" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>I Don't Know</h3>
+        </div>
+    </div>
+
+    <!-- Add Category Section -->
+    <div class="add-category">
+        <input type="text" id="newCategoryInput" placeholder="New category name">
+        <button onclick="addCategory()">Add Category</button>
+    </div>
+
+    <!-- Screenshot Button -->
+    <button class="screenshot-btn" onclick="takeScreenshot()">Download Screenshot</button>
+
+    <!-- JavaScript for Drag-and-Drop and Category Management -->
+    <script>
+        // Enable drag and drop functionality for cards
+        const cards = document.querySelectorAll('.card');
+        const categories = document.getElementById('categories');
+
+        cards.forEach(card => {
+            card.addEventListener('dragstart', dragStart);
+        });
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function dragStart(event) {
+            event.dataTransfer.setData('text/plain', event.target.id);
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const cardId = event.dataTransfer.getData('text');
+            const card = document.getElementById(cardId);
+            if (event.target.classList.contains('category')) {
+                event.target.appendChild(card);
+            } else if (event.target.parentElement.classList.contains('category')) {
+                event.target.parentElement.appendChild(card);
+            }
+        }
+
+        // Function to add a new category with delete functionality
+        function addCategory() {
+            const categoryInput = document.getElementById('newCategoryInput');
+            const categoryName = categoryInput.value.trim();
+            if (categoryName) {
+                // Create the new category container
+                const newCategory = document.createElement('div');
+                newCategory.classList.add('category');
+                newCategory.setAttribute('ondrop', 'drop(event)');
+                newCategory.setAttribute('ondragover', 'allowDrop(event)');
+                newCategory.innerHTML = `
+                    <h3>${categoryName}</h3>
+                    <button class="delete-btn" onclick="deleteCategory(this)">X</button>
+                `;
+                categories.appendChild(newCategory);
+                categoryInput.value = '';
+            }
+        }
+
+        // Function to delete a category
+        function deleteCategory(button) {
+            const category = button.parentElement;
+            category.remove();
+        }
+
+        // Function to take a screenshot of the board
+        function takeScreenshot() {
+            html2canvas(document.body).then(canvas => {
+                // Create a link to download the image
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL("image/png");
+                link.download = 'card_sorting_screenshot.png';
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
